@@ -56,7 +56,7 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 					spResponse+=spRes+'\n'
 #				break
 	spResponseRaw=spResponse.split('\n')	
-	print spResponseRaw
+#	print spResponseRaw
 	for spResponseLine in spResponseRaw:
 		spResponseArray=spResponseLine.split(' ')
 		nodeSlotNumber=0
@@ -152,9 +152,9 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 		myIndexArray2=0
 		myNodeSlotList=getMemoryBaseBalanceSlotNumbers()
 		myIndexMax=len(myNodeSlotList)
-		print myNodeSlotList
-		print '----------***************************------------'
-		print myNodeInfoList
+		# print myNodeSlotList
+		# print '----------***************************------------'
+		# print myNodeInfoList
 		sleep(1)
 #		myNodeInfoList[nodeId][SlotNumber]
 #		myNodeSlotList [nodeNumber][balancedSlotsNumber]
