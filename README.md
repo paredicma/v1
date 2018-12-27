@@ -1,8 +1,8 @@
 ##################### Python Automatic REDIs Cluster MAnager & MAker ############
 ## Author				: Mustafa YAVUZ 
 ## E-mail				: msyavuz@gmai.com, paredicma@gmail.com
-## Version				: 0.3
-## Date					: 24.12.2018
+## Version				: 1.0
+## Date					: 27.12.2018
 ## OS System 				: Redhat/Centos 6 and 7 ( possible Ubuntu, debian )
 ## Software Requirement			: Python 2.6 or above, sshd( with passwordless ssh-keygen auth. between servers ), numactl 
 ##################### Python Automatic REDIs Cluster MAnager&MAker ############
