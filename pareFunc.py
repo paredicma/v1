@@ -50,9 +50,13 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 		if ( pareNode[4] ):
 			isPing=pingNode(nodeIP,portNumber)
 			if (isPing):
-				spStatus,spResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master | grep -v fail'))
-				break
-	spResponseRaw=spResponse.split('\n')
+#				spStatus,spResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master |  grep myself | grep -v fail'))
+				spStatus,spRes = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master |  grep myself | grep -v fail'))
+				if (len(spRes)>20 ):
+					spResponse+=spRes+'\n'
+#				break
+	spResponseRaw=spResponse.split('\n')	
+	print spResponseRaw
 	for spResponseLine in spResponseRaw:
 		spResponseArray=spResponseLine.split(' ')
 		nodeSlotNumber=0
@@ -148,6 +152,9 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 		myIndexArray2=0
 		myNodeSlotList=getMemoryBaseBalanceSlotNumbers()
 		myIndexMax=len(myNodeSlotList)
+		print myNodeSlotList
+		print '----------***************************------------'
+		print myNodeInfoList
 		sleep(1)
 #		myNodeInfoList[nodeId][SlotNumber]
 #		myNodeSlotList [nodeNumber][balancedSlotsNumber]
