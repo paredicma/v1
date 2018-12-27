@@ -2,9 +2,9 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 ## Author			: Mustafa YAVUZ 
-## E-mail			: msyavuz@gmail.com or paredicma@gmail.com
-## Version			: 1.0
-## Date				: 27.12.2018
+## E-mail			: msyavuz@gmail.com,paredicma@gmail.com
+## Version			: 0.4
+## Date				: 26.12.2018
 ## OS System 		: Redhat/Centos 6-7, debian/Ubuntu
 ## Redis Version 	: 5.0.0 and above
 ##################PARAMETERS################################
@@ -137,7 +137,7 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 							else:
 								myNodeInfoListIndexer=0
 					else:
-						print (bcolors.WARNING+'This node has more (or equal ) slots number than  balance slot number :) '+myNodeInfo[0]+bcolors.ENDC)
+						print (bcolors.WARNING+'This node has more (or equal ) slots than  balance slot level :) '+myNodeInfo[0]+bcolors.ENDC)
 				else:
 					print (bcolors.WARNING+'You reached "max  move slots" per node barier. If you want to move further, run balancer again. Total Moved Slot Number:  '+str(movedSlotsNumber)+bcolors.ENDC)
 			else:
@@ -246,12 +246,12 @@ def reshardClusterSlient(contactNode,fromNodeID,toNodeID,slotNumber):
 def changePareNodeListFile(oldValue,newValue):
 	fileContent=fileReadFull("pareNodeList.py")
 	newFileContent=fileContent.replace(oldValue,newValue)
-	fileClearWrite("pareNodeList.py", bcolors.BOLD+newFileContent+'\n#### Node list File was Changed by paredicma at '+get_datetime()+'\n#### old value:'+oldValue+'\n#### new value:'+newValue+bcolors.ENDC)
+	fileClearWrite("pareNodeList.py", newFileContent+'\n#### Node list File was Changed by paredicma at '+get_datetime()+'\n#### old value:'+oldValue+'\n#### new value:'+newValue)
 def changePareConfigFile(oldValue,newValue):
 	retVal=False
 	fileContent=fileReadFull("pareConfig.py")
 	newFileContent=fileContent.replace(oldValue,newValue)
-	fileClearWrite("pareConfig.py", bcolors.BOLD+newFileContent+'\n#### Config File was Changed by paredicma at '+get_datetime()+'\n#### old value:'+oldValue+'\n#### new value:'+newValue+bcolors.ENDC)
+	fileClearWrite("pareConfig.py", newFileContent+'\n#### Config File was Changed by paredicma at '+get_datetime()+'\n#### old value:'+oldValue+'\n#### new value:'+newValue)
 	retVal=True
 	return retVal
 def reshardCluster(contactNode,fromNodeID,toNodeID,slotNumber):
@@ -506,7 +506,7 @@ def showMemoryUsage():
 #	while(True):
 #	sleep(1)
 	print ('Memory Usage\n-------------------------------')
-	print (bcolors.HEADER+'nodeID 		NodeIP				 NodePort	Used Mem(GB)	Max Mem(GB)	Usage Percentage(%)'+bcolors.ENDC)
+	print (bcolors.HEADER+'nodeID 		NodeIP				 NodePort	Used Mem(GB)	Max Mem(GB)	Usage (%)'+bcolors.ENDC)
 	nodeNumber=0
 	totalMemPer=0.0
 	totalUsedMemByte=0
@@ -523,8 +523,8 @@ def showMemoryUsage():
 			if ( memStatus == 0 ):
 				usedMemByte=float(memResponse[12:memResponse.find('maxmemory:')-1])
 				maxMemByte=float(memResponse[memResponse.find('maxmemory:')+10:])
-				usedMem=round((usedMemByte)/(1024*1024*1024),2)
-				maxMem=round((maxMemByte)/(1024*1024*1024),2)
+				usedMem=round((usedMemByte)/(1024*1024*1024),3)
+				maxMem=round((maxMemByte)/(1024*1024*1024),3)
 				usagePerMem=round((usedMem/maxMem)*100,2)
 				totalUsedMemByte+=usedMemByte
 				totalMaxMemByte+=maxMemByte
@@ -553,14 +553,14 @@ def showMemoryUsage():
 				print (bcolors.FAIL+'!!! Warning !!!! A problem occurred, while memory usage checking !!! nodeID :'+str(nodeNumber)+' NodeIP:'+nodeIP+' NodePort:'+portNumber+''+bcolors.ENDC)
 	print printTextMaster+bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC
 	print printTextSlave
-	totalUsedMem=round(((totalUsedMemByte)/(1024*1024*1024)),2)
-	totalMaxMem=round(((totalMaxMemByte)/(1024*1024*1024)),2)
+	totalUsedMem=round(((totalUsedMemByte)/(1024*1024*1024)),3)
+	totalMaxMem=round(((totalMaxMemByte)/(1024*1024*1024)),3)
 	if (totalMaxMem==0):
 		totalMemPer=0.0
 	else:
 		totalMemPer=round(((totalUsedMem/totalMaxMem)*100),2)
 	print (bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC)
-	print (bcolors.BOLD+'TOTAL								:'+str(totalUsedMem)+'GB		'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
+	print (bcolors.BOLD+'TOTAL								:'+str(totalUsedMem)+'GB	'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
 	raw_input('\n-----------------------------------------\nPress Enter to Return Paredicmon Menu')
 def pingNode(nodeIP,portNumber):
 	pingStatus,pingResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' ping '))
@@ -611,6 +611,7 @@ def delPareNode(delNodeID):
 		if(procResult.find('[ERR]')==-1):
 			print (queryRespond)
 			return True
+			print (bcolors.OKGREEN+'Node was deleted. OK :)!!!: '+clusterString+bcolors.ENDC)
 		else:
 			print (queryRespond)
 			print (bcolors.FAIL+'!!! deleting cluster node was canceled !!!: '+clusterString+bcolors.ENDC)
@@ -634,6 +635,7 @@ def addMasterNode(serverIP,serverPORT):
 		logWrite(pareLogFile,bcolors.BOLD+'Adding new master node to redis cluster : '+clusterString+bcolors.ENDC)
 		if(os.system(clusterString)==0):
 			return True
+			print (bcolors.OKGREEN+'New Node was added. OK :)!!!: Node IP:'+serverIP+' PORT:'+serverPORT+bcolors.ENDC)
 		else:
 			return False
 	else:

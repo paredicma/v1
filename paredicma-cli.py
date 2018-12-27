@@ -2,9 +2,9 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 ## Author			: Mustafa YAVUZ 
-## E-mail			: msyavuz@gmail.com or paredicma@gmail.com
-## Version			: 1.0
-## Date				: 27.12.2018
+## E-mail			: msyavuz@gmail.com,paredicma@gmail.com
+## Version			: 0.4
+## Date				: 26.12.2018
 ## OS System 		: Redhat/Centos 6-7, debian/Ubuntu
 ## Redis Version 	: 5.0.0 and above
 ##################PARAMETERS################################
@@ -446,6 +446,7 @@ def main():
 					if(numberOfSlots.isdigit()):
 						if(int(numberOfSlots)<16386):
 							reshardCluster(nodeNumber,fromNodeID,toNodeID,numberOfSlots)
+							returnVAl=raw_input(bcolors.BOLD +"Operation completed. Press enter to continue..."+bcolors.ENDC)
 						else:
 							print (bcolors.FAIL +'!!! This is not valid number value (out of range) !!!'+bcolors.ENDC)
 					else:
