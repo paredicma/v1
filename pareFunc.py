@@ -37,6 +37,7 @@ def clusterFix(contactNode):
 		return False
 def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 	nodeNumber=0
+	contactNode=-1
 	spResponse=''
 	myNodeInfoList=[]
 	allSlotNumber=16386
@@ -50,6 +51,8 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 		if ( pareNode[4] ):
 			isPing=pingNode(nodeIP,portNumber)
 			if (isPing):
+				if(contactNode==-1):
+					contactNode=nodeNumber
 #				spStatus,spResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master |  grep myself | grep -v fail'))
 				spStatus,spRes = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master |  grep myself | grep -v fail'))
 				if (len(spRes)>20 ):
@@ -102,7 +105,6 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 						slotDiff=balanceSlotNumber-myNodeInfo[1]
 						stepSize=1
 						while ( slotDiff > 0 ):
-							print ('TO Node ID :'+str(myNodeInfo[0])+'		Slot Diff :'+bcolors.OKBLUE+str(slotDiff)+bcolors.ENDC)						
 #							print ('Step 3:balanceSlotNumber :'+str(balanceSlotNumber))
 							# if(slotDiff>10 and slotDiff<=100):
 								# stepSize=10							
@@ -115,13 +117,14 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 									stepSize=5									
 								else:
 									stepSize=1
-								reshardClusterSlient(nodeNumber,myNodeInfoList[myNodeInfoListIndexer][0],myNodeInfo[0],str(stepSize))
+								reshardClusterSlient(contactNode,myNodeInfoList[myNodeInfoListIndexer][0],myNodeInfo[0],str(stepSize))
 								print ('FROM Node ID'+myNodeInfoList[myNodeInfoListIndexer][0]+'\n-> TO Node ID :'+myNodeInfo[0]+'\nMoved Slots :'+str(stepSize)+ bcolors.OKGREEN+' OK :)'+bcolors.ENDC)
+								print ('TO Node ID :'+str(myNodeInfo[0])+'		Slot Diff :'+bcolors.OKBLUE+str(slotDiff)+bcolors.ENDC)														
 								sleep(3)
-								if(clusterCheck(nodeNumber)==False):
+								if(clusterCheck(contactNode)==False):
 									print (bcolors.FAIL+'!!! Warning !!! Cluster Check Fail. I will try to fix It'+bcolors.ENDC)
 									sleep(10)
-									if(clusterFix(nodeNumber)):
+									if(clusterFix(contactNode)):
 										print (bcolors.OKGREEN+' OK :) I fixed it ;)'+bcolors.ENDC)
 										sleep(5)
 									else:
@@ -142,7 +145,7 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 					print (bcolors.WARNING+'You reached "max  move slots" per node barier. If you want to move further, run balancer again. Total Moved Slot Number:  '+str(movedSlotsNumber)+bcolors.ENDC)
 			else:
 				print (bcolors.FAIL+' !!! ERROR !!! I tried to fix Slots, however it does NOT work. The proccess was terminated !!! '+bcolors.ENDC)
-		clusterInfo(pareNodes[nodeNumber-1][0][0],pareNodes[nodeNumber-1][1][0])
+		clusterInfo(pareNodes[contactNode-1][0][0],pareNodes[contactNode-1][1][0])
 		showMemoryUsage()
 	elif(balanceStrategy=='memBase'):	
 		movedSlotsNumber=0
@@ -192,7 +195,7 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 										stepSize=5
 									else:
 										stepSize=1
-									if(reshardClusterSlient(nodeNumber,myNodeInfoList[myIndexArray2][0],myNodeInfoList[myIndexArray1][0],str(stepSize))):
+									if(reshardClusterSlient(contactNode,myNodeInfoList[myIndexArray2][0],myNodeInfoList[myIndexArray1][0],str(stepSize))):
 										print ('FROM Node ID'+myNodeInfoList[myIndexArray2][0]+'\n-> TO Node ID :'+myNodeInfoList[myIndexArray1][0]+'\nMoved Slots :'+str(stepSize)+ bcolors.OKGREEN+' OK :)'+bcolors.ENDC)
 										myNodeInfoList[myIndexArray1][1]+=stepSize
 										myNodeInfoList[myIndexArray2][1]-=stepSize
@@ -208,16 +211,16 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 							break
 							
 					sleep(2)
-					if(clusterCheck(nodeNumber)==False):
+					if(clusterCheck(contactNode)==False):
 						print (bcolors.FAIL+'!!! Warning !!! Cluster Check Fail. I will try to fix It'+bcolors.ENDC)
 						sleep(2)
-						if(clusterFix(nodeNumber)):
+						if(clusterFix(contactNode)):
 							print (bcolors.OKGREEN+' OK :) I fixed it ;)'+bcolors.ENDC)
 							sleep(2)							
 					myIndexArray1+=1
 					if(movedSlotsNumber>=maxSlotBarier or loopControl==100000):
 						break
-			clusterInfo(pareNodes[nodeNumber-1][0][0],pareNodes[nodeNumber-1][1][0])
+			clusterInfo(pareNodes[contactNode-1][0][0],pareNodes[contactNode-1][1][0])
 			showMemoryUsage()
 			
 		else:
