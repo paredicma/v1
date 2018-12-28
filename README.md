@@ -1,6 +1,6 @@
 ##################### Python Automatic REDIs Cluster MAnager & MAker ############
 ## Author				: Mustafa YAVUZ 
-## E-mail				: msyavuz@gmai.com, paredicma@gmail.com
+## E-mail				: msyavuz@gmail.com, paredicma@gmail.com
 ## Version				: 1.0
 ## Date					: 27.12.2018
 ## OS System 				: Redhat/Centos 6 and 7 ( possible Ubuntu, debian )
