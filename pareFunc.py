@@ -529,10 +529,12 @@ def showMemoryUsage():
 				usedMem=round((usedMemByte)/(1024*1024*1024),3)
 				maxMem=round((maxMemByte)/(1024*1024*1024),3)
 				usagePerMem=round((usedMem/maxMem)*100,2)
-				totalUsedMemByte+=usedMemByte
-				totalMaxMemByte+=maxMemByte
+				# totalUsedMemByte+=usedMemByte
+				# totalMaxMemByte+=maxMemByte
 				if (isNodeMaster(nodeIP,nodeNumber,portNumber)):
 					isMaster=True
+					totalUsedMemByte+=usedMemByte
+					totalMaxMemByte+=maxMemByte
 					str(nodeNumber)+'	'+nodeIP+'-( M )			'+portNumber+'		'+str(usedMem)+'		'+str(maxMem)+'		'+str(usagePerMem)+'%'+bcolors.ENDC+'\n'
 				else:
 					isMaster=False
@@ -563,7 +565,7 @@ def showMemoryUsage():
 	else:
 		totalMemPer=round(((totalUsedMem/totalMaxMem)*100),2)
 	print (bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC)
-	print (bcolors.BOLD+'TOTAL								:'+str(totalUsedMem)+'GB	'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
+	print (bcolors.BOLD+'TOTAL ( Only Master )						:'+str(totalUsedMem)+'GB	'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
 	raw_input('\n-----------------------------------------\nPress Enter to Return Paredicmon Menu')
 def pingNode(nodeIP,portNumber):
 	pingStatus,pingResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' ping '))
@@ -579,7 +581,7 @@ def isNodeMaster(nodeIP,nodeNumber,portNumber):
 	else :
 		return False
 def migrateDataFrom(toIP,toPort,fromIP,fromPORT):
-	os.system('nohup ./redis-'+redisVersion+'/src/redis-cli --cluster import '+toIP+':'+toPort+' --cluster-from '+fromIP+':'+fromPORT+' --cluster-copy > /dev/null')
+	os.system('./redis-'+redisVersion+'/src/redis-cli --cluster import '+toIP+':'+toPort+' --cluster-from '+fromIP+':'+fromPORT+' --cluster-copy > /dev/null')
 def isNodeHasSlave(nodeIP,nodeNumber,portNumber):
 	pingStatus,pingResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' info replication | grep connected_slaves '))
 	if ( pingStatus == 0 & pingResponse.find(':0')>0 ):
@@ -742,8 +744,8 @@ def switchMasterSlave(nodeIP,nodeNumber,portNumber):
 			if (spStatus==0):
 #				print (redisConnectCmd(nodeIP,portNumber,' CLUSTER FAILOVER ')
 				print (bcolors.OKGREEN+'Switch master/slave command successed.'+bcolors.ENDC)
-				print (bcolors.BOLD+'New Slave  IP:PORT '+nodeIP+':'+portNumber+bcolors.ENDC)
-				print (bcolors.BOLD+'New Master IP:PORT '+slaveIP+':'+slavePort+bcolors.ENDC)
+				print (bcolors.OKBLUE+'New Slave  IP:PORT '+nodeIP+':'+portNumber+bcolors.ENDC)
+				print (bcolors.OKBLUE+'New Master IP:PORT '+slaveIP+':'+slavePort+bcolors.ENDC)
 				return True
 			else:
 				print (bcolors.FAIL+'!!! Switch master/slave command failed. !!!'+bcolors.ENDC)
@@ -839,7 +841,7 @@ def redisNewBinaryCopier(myServerIP,myRedisVersion):
 	if(myServerIP==pareServerIp):
 		if ( makeDir(redisBinaryDir) ):
 			print ('cp -pr redis-'+myRedisVersion+'/* '+redisBinaryDir)
-			cmdStatus=os.system('cp -pr redis-'+myRedisVersion+'/* '+redisBinaryDir)
+			cmdStatus=os.system('cp -pr redis-'+myRedisVersion+'/* '+redisBinaryDir+' > /dev/null ')
 			#cmdStatus,cmdResponse = commands.getstatusoutput('cp -pr redis-'+myRedisVersion+'/* '+redisBinaryDir)
 			if(cmdStatus==0):
 				logWrite(pareLogFile,bcolors.OKGREEN+':: '+myServerIP+' :: OK -> redis binary was  copied.'+bcolors.ENDC)

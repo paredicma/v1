@@ -250,16 +250,28 @@ def main():
 					print ('Rolling Restart is launching.')
 					nodeNumber=0
 					waitSleep=raw_input(bcolors.BOLD+"\nsleep time between node restart (0 = no sleep time, minute(s) ) :"+bcolors.ENDC)
+					rebootList=''
 					if (waitSleep.isdigit()):
 						for pareNode in pareNodes:
 							nodeIP=pareNode[0][0]
 							portNumber=pareNode[1][0]
 							dedicateCpuCores=pareNode[2][0]					
 							nodeNumber=nodeNumber+1
-							if ( pareNode[4] ):
+							if ( pareNode[4] and isNodeMaster(nodeIP,nodeNumber,portNumber)==False):
 								print (bcolors.BOLD+'Node Number :'+str(nodeNumber)+'  Node IP :'+nodeIP+'  Node Port :'+portNumber+bcolors.ENDC)
 								restartNode(nodeIP,str(nodeNumber),portNumber,dedicateCpuCores)
+								rebootList+='N'+str(nodeNumber)+'N-'
 								sleep(int(waitSleep)*60)
+						nodeNumber=0
+						for pareNode in pareNodes:
+							nodeIP=pareNode[0][0]
+							portNumber=pareNode[1][0]
+							dedicateCpuCores=pareNode[2][0]					
+							nodeNumber=nodeNumber+1
+							if ( pareNode[4] and isNodeMaster(nodeIP,nodeNumber,portNumber) and rebootList.find('N'+str(nodeNumber)+'N-')==-1):
+								print (bcolors.BOLD+'Node Number :'+str(nodeNumber)+'  Node IP :'+nodeIP+'  Node Port :'+portNumber+bcolors.ENDC)
+								restartNode(nodeIP,str(nodeNumber),portNumber,dedicateCpuCores)
+								sleep(int(waitSleep)*60)								
 					else:
 						print (colors.FAIL+'!!!You entered wrong value!!! : ' + waitSleep+bcolors.ENDC)
 					sleep(3)
@@ -486,7 +498,7 @@ def main():
 									if (sRisOK):
 										mRisOK=restartAllMasters(newRedisVersion)
 										if(mRisOK==False):
-											myRes=praw_input(bcolors.BOLD +"\nDo you want to try again until all master nodes return OK (yes/no):"+bcolors.ENDC)
+											myRes=raw_input(bcolors.BOLD +"\nDo you want to try again until all master nodes return OK (yes/no):"+bcolors.ENDC)
 											if (lower(myRes)=='yes'):
 												while (restartAllMasters(newRedisVersion)==False):
 													print (bcolors.BOLD +'The Operation  will be tried again, 1 minute later. Please wait .. '+bcolors.ENDC)
@@ -628,6 +640,7 @@ def main():
 					if(redisReplicationNumber.isdigit()):
 						if((int(redisReplicationNumber)*3)<=len(pareNodes)):
 							pareClusterMaker(redisReplicationNumber)
+							returnVAl=raw_input(bcolors.BOLD +"Press enter to continue..."+bcolors.ENDC) 
 						else:
 							print (bcolors.FAIL +"!!! You do NOT have enough nodes to setup this configuration !!!\n please check replication number and pareNodes.py file !!!!"+bcolors.ENDC)
 					else:
