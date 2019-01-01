@@ -19,7 +19,9 @@ numactl( if you want to use dedicate cpu-core )
 ## 1- Download and extract :
 
 Download -> paredicma.zip ( or v1-master.zip )
+
 extract -> unzip paredicma.zip ( or v1-master.zip )
+
 cd paredicma ( or cd v1-master)
 
 ## 2- Installation :
