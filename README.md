@@ -12,7 +12,9 @@ It includes current redis tar file. If You have, you can try paredicma with newe
 
 ## Prerequirements:
 sshd ( with passwordless ssh-keygen auth. between servers ),
+
 python (2.6 or above),
+
 numactl( if you want to use dedicate cpu-core )
 
 
