@@ -30,6 +30,7 @@ You do not need to install it, Just configure and run it.
 ## 3- Configuration :
 
 Configure pareNodeList.py file, change ip, port, cpu core and max_memory per node, according to your cluster.
+
 Configure pareConfig.py file, according to your cluster
 
 # 4 - run program
