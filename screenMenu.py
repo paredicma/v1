@@ -38,7 +38,7 @@ def menuMan():  ## menuMonitor
 	print (bcolors.BOLD+'	  4 - Save Redis Configuration to redis.conf  	'+ bcolors.ENDC)
 	print (bcolors.BOLD+'	  5 - Rolling Restart   	            		'+ bcolors.ENDC)
 	print (bcolors.BOLD+'	  6 - Command for all nodes			    		'+ bcolors.ENDC)	
-	print (bcolors.BOLD+'	  7 - Not Designated            '+ bcolors.ENDC)
+	print (bcolors.BOLD+'	  7 - Show Redis Log File          '+ bcolors.ENDC)
 	print (bcolors.BOLD+'	  8 - Not Designated            '+ bcolors.ENDC)
 	print (bcolors.BOLD+'	  9 - Main Menu                 '+ bcolors.ENDC)	
 	print (bcolors.BOLD+'	 10 - Exit                      '+ bcolors.ENDC)

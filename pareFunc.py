@@ -12,6 +12,7 @@ import os
 import commands
 from time import *
 from pareConfig import *
+from pareNodeList import *
 import socket
 from string import *
 from screenMenu import *
@@ -35,6 +36,15 @@ def clusterFix(contactNode):
 		return True
 	else:
 		return False
+def showRedisLogFile(nodeIP,nodeNum,portNumber,myLineNum):
+	if(nodeIP==pareServerIp):
+		returnCmd,cmdResponse = commands.getstatusoutput('tail -'+myLineNum+' '+redisLogDir+'redisN'+nodeNum+'_P'+portNumber+'.log')
+		print (bcolors.OKGREEN+cmdResponse+bcolors.ENDC)
+		raw_input(bcolors.BOLD+'\n----------------------\nPress Enter to Return Paredicman Menu'+bcolors.ENDC )
+	else:
+		returnCmd,cmdResponse = commands.getstatusoutput('ssh -q -o "StrictHostKeyChecking no"  '+pareOSUser+'@'+nodeIP+' -C  "tail -'+myLineNum+' '+redisLogDir+'redisN'+nodeNum+'_P'+portNumber+'.log"')
+		print (bcolors.OKGREEN+cmdResponse+bcolors.ENDC)
+		raw_input(bcolors.BOLD+'\n----------------------\nPress Enter to Return Paredicman Menu'+bcolors.ENDC )
 def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 	nodeNumber=0
 	contactNode=-1
@@ -818,7 +828,8 @@ def restartNode(nodeIP,nodeNumber,portNumber,dedicateCpuCores):
 	startNode(nodeIP,nodeNumber,portNumber,dedicateCpuCores)
 def redisBinaryCopier(myServerIP,myRedisVersion):
 	if(myServerIP==pareServerIp):
-		cmdStatus=os.system('cp -pr redis-'+myRedisVersion+'/* '+redisBinaryDir)
+		#cmdStatus=os.system('cp -pr redis-'+myRedisVersion+'/* '+redisBinaryDir)
+		cmdStatus,cmdResponse = commands.getstatusoutput('cp -pr redis-'+myRedisVersion+'/* '+redisBinaryDir)
 		if(cmdStatus==0):
 			logWrite(pareLogFile,bcolors.OKGREEN+':: '+myServerIP+' :: OK -> redis binary was  copied.'+bcolors.ENDC)
 			return True
@@ -826,7 +837,8 @@ def redisBinaryCopier(myServerIP,myRedisVersion):
 			print (bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
 			return False
 	else:
-		cmdStatus=os.system('scp -r redis-'+myRedisVersion+'/* '+pareOSUser+'@'+myServerIP+':'+redisBinaryDir)
+#		cmdStatus=os.system('scp -r redis-'+myRedisVersion+'/* '+pareOSUser+'@'+myServerIP+':'+redisBinaryDir)
+		cmdStatus,cmdResponse = commands.getstatusoutput('scp -r redis-'+myRedisVersion+'/* '+pareOSUser+'@'+myServerIP+':'+redisBinaryDir)
 		if(cmdStatus==0):
 			logWrite(pareLogFile,bcolors.OKGREEN+':: '+myServerIP+' :: OK -> redis binary was copied.'+bcolors.ENDC)
 			return True

@@ -11,7 +11,7 @@
 import os
 import sys
 from time import *
-#from  pareConfig import *
+from  pareConfig import *
 from pareFunc import *
 from screenMenu import *
 from paredicma import *
@@ -301,8 +301,27 @@ def main():
 					else:
 						print (bcolors.FAIL+'!!!You entered wrong value!!! : ' + onlyMaster+bcolors.ENDC)
 					myR=raw_input(bcolors.BOLD+'\nPress Enter to continue...'+bcolors.ENDC)
-				elif returnVAl=="7" : 		### Not Designated
-					print ('hello man')
+				elif returnVAl=="7" : 		### Show Redis Log File
+					funcNodesList()
+					myNodeNum=raw_input(bcolors.BOLD+"\nPlease Enter Node Number : "+bcolors.ENDC ) 
+					print ('Your choise :'+bcolors.BOLD+myNodeNum+bcolors.ENDC)
+					if (myNodeNum.isdigit()):
+						nodeNumber=int(myNodeNum)
+						if( nodeNumber<=len(pareNodes) and  pareNodes[nodeNumber-1][4] ):
+							myLineNum=raw_input(bcolors.BOLD+"\nHow many line do you want to see ( 1-1000 ) ? : "+bcolors.ENDC ) 
+							if (myLineNum.isdigit()):
+								if(int(myLineNum)<=1000 and int(myLineNum)>0):							
+									nodeIP = pareNodes[nodeNumber-1][0][0]				
+									portNumber = pareNodes[nodeNumber-1][1][0]									
+									showRedisLogFile(nodeIP,str(nodeNumber),portNumber,myLineNum)									
+								else:
+									print (bcolors.FAIL+'!!!You entered wrong value. It must be between 1 - 1000 !!! : ' + myLineNum+bcolors.ENDC)									
+							else:
+								print (bcolors.FAIL+'!!!You entered wrong value!!! : ' + myLineNum+bcolors.ENDC)
+						else:
+							print (bcolors.FAIL+'!!!You entered wrong number!!! : ' + myNodeNum+bcolors.ENDC)
+					else:
+							print (bcolors.FAIL+'!!!You entered wrong value!!! : ' + myNodeNum+bcolors.ENDC)				
 				elif returnVAl=="8" : 		### Not Designated
 					print ('hello man'	)	
 				elif returnVAl=="9" : 		### Main Menu
