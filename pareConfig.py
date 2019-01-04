@@ -26,7 +26,7 @@ redisCluster = 'on'   ## on/off
 clusterNodeTimeout = 'cluster-node-timeout 5000'
 clusterParameters = 'cluster-replica-validity-factor 0\ncluster-migration-barrier 1'
 maxMemory = 'on'   ## on/off
-redisPwdAuthentication =  True   ## True/False
+redisPwdAuthentication = 'on'   ## on/off
 redisPwd = 'my1Laydy7darbanville5*'
 redisParameters = '''
 daemonize yes
