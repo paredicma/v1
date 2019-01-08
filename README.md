@@ -94,7 +94,7 @@ If you choose #2
           4 - Save Redis Configuration to redis.conf  
           5 - Rolling Restart                       
           6 - Command for all nodes                         
-          7 - Not Designated            
+          7 - Show Redis Log File           
           8 - Not Designated            
           9 - Main Menu                 
          10 - Exit                      
