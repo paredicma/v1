@@ -6,10 +6,8 @@ from pareFunc import *
 from screenMenu import *
 from paredicma import *
 def main():
+	os.system("clear")
 	while(True):
-		os.system("clear")
-		print ('Memory Usage\n-------------------------------')
-		print (bcolors.HEADER+'nodeID 		NodeIP				 NodePort	Used Mem(GB)	Max Mem(GB)	Usage Percentage(%)'+bcolors.ENDC)
 		nodeNumber=0
 		totalMemPer=0.0
 		totalUsedMemByte=0
@@ -29,9 +27,9 @@ def main():
 					usedMem=round((usedMemByte)/(1024*1024*1024),2)
 					maxMem=round((maxMemByte)/(1024*1024*1024),2)
 					usagePerMem=round((usedMem/maxMem)*100,2)
-					totalUsedMemByte+=usedMemByte
-					totalMaxMemByte+=maxMemByte
 					if (isNodeMaster(nodeIP,nodeNumber,portNumber)):
+						totalUsedMemByte+=usedMemByte
+						totalMaxMemByte+=maxMemByte						
 						isMaster=True
 						str(nodeNumber)+'	'+nodeIP+'-( M )			'+portNumber+'		'+str(usedMem)+'		'+str(maxMem)+'		'+str(usagePerMem)+'%'+bcolors.ENDC+'\n'
 					else:
@@ -54,6 +52,10 @@ def main():
 							printTextSlave+=bcolors.OKGREEN+str(nodeNumber)+'	'+nodeIP+'-( S )			'+portNumber+'		'+str(usedMem)+'		'+str(maxMem)+'		'+str(usagePerMem)+'%'+bcolors.ENDC+'\n'
 				else :
 					print (bcolors.FAIL+'!!! Warning !!!! A problem occurred, while memory usage checking !!! nodeID :'+str(nodeNumber)+' NodeIP:'+nodeIP+' NodePort:'+portNumber+''+bcolors.ENDC)
+		sleep(2)					
+		os.system("clear")					
+		print ('Memory Usage\n-------------------------------')
+		print (bcolors.HEADER+'nodeID 		NodeIP				 NodePort	Used Mem(GB)	Max Mem(GB)	Usage Percentage(%)'+bcolors.ENDC)
 		print printTextMaster+bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC
 		print printTextSlave
 		totalUsedMem=round(((totalUsedMemByte)/(1024*1024*1024)),2)
@@ -63,6 +65,5 @@ def main():
 		else:
 			totalMemPer=round(((totalUsedMem/totalMaxMem)*100),2)
 		print (bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC)
-		print (bcolors.BOLD+'TOTAL								:'+str(totalUsedMem)+'GB		'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
-		sleep(2)
+		print (bcolors.BOLD+'TOTAL ( Only Master)						:'+str(totalUsedMem)+'GB	'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
 main()
