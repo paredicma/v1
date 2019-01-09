@@ -400,7 +400,11 @@ def slotInfo(nodeIP,portNumber):
 	os.system(redisConnectCmd(nodeIP,portNumber,' CLUSTER SLOTS'))
 	os.system(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master'))
 	print ('\nCluster Slots Check\n------------------------------------------ ')
-	clusterString=redisBinaryDir+'src/redis-cli --cluster check '+nodeIP+':'+portNumber
+	clusterString=''
+	if(redisPwdAuthentication == 'on'):
+		clusterString=redisBinaryDir+'src/redis-cli --cluster check '+nodeIP+':'+portNumber+' -a '+redisPwd+' '
+	else:
+		clusterString=redisBinaryDir+'src/redis-cli --cluster check '+nodeIP+':'+portNumber
 	clStatus,clResponse = commands.getstatusoutput(clusterString)	
 	print (bcolors.BOLD+clResponse[:clResponse.find('>>>')]+bcolors.ENDC)
 	raw_input(bcolors.BOLD+'\n----------------------\nPress Enter to Return Paredicmon Menu'+bcolors.ENDC )
