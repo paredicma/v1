@@ -873,10 +873,29 @@ def killNode(nodeIP,nodeNumber,portNumber):
 	proccessID=proccessResponse[prCursor+11:len(proccessResponse)-1] ##.replace('process_id:',' ')
 	if(nodeIP==pareServerIp and proccessID<>'NULL' and  killNode=='YES'):	
 		killResult=os.system('kill '+proccessID+' ')
-		sleep(7)
+		turnWhile=True
+		while(turnWhile):
+			killResult,killOutput =commands.getstatusoutput('ps -ef | grep redis-server | grep "'+proccessID+' " | grep -v "grep"')
+			if (killOutput.find(proccessID)>-1):
+				print (bcolors.WARNING+'!!! Redis Node Stopping proccess continue... !!! Please wait. '+bcolors.ENDC )
+				sleep(5)
+			else:
+				print (bcolors.BOLD+'!!! Redis Node Stopped !!! '+bcolors.ENDC )
+				turnWhile=False
+		
+		sleep(2)
 	elif(nodeIP<>pareServerIp and proccessID<>'NULL' and  killNode=='YES'):
 		killResult=os.system('ssh -q -o "StrictHostKeyChecking no"  '+pareOSUser+'@'+nodeIP+' -C  "kill  '+proccessID+'"')
-		sleep(7)
+		turnWhile=True
+		while(turnWhile):
+			killResult,killOutput =commands.getstatusoutput('ssh -q -o "StrictHostKeyChecking no"  '+pareOSUser+'@'+nodeIP+' -C  "ps -ef | grep redis-server"  | grep '+proccessID+' | grep -v "grep"')
+			if (killOutput.find(proccessID)>-1):
+				print (bcolors.WARNING+'!!! Redis Node Stopping proccess continue... !!! Please wait. '+bcolors.ENDC )
+				sleep(5)
+			else:
+				print (bcolors.BOLD+'!!! Redis Node Stopped !!! '+bcolors.ENDC )
+				turnWhile=False		
+		sleep(2)
 	else :
 		print ('!!!The proccess canceled!!!')
 def stopNode(nodeIP,nodeNumber,portNumber):
