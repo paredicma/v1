@@ -183,7 +183,7 @@ def main():
 					else:
 							print (colors.FAIL+'!!!You entered wrong value!!! : ' + myNodeNum+bcolors.ENDC)
 					funcNodesList()	
-				elif returnVAl=="3" : 		### Change Redis Config
+				elif returnVAl=="3" : 		### Change Redis Coonfiguration
 					print (bcolors.BOLD+'Change Redis Configuration'+bcolors.ENDC)
 					funcNodesList()				
 					myNodeNum=raw_input(bcolors.BOLD+'\nPlease Enter Node Number or Enter "all": '+bcolors.ENDC)
@@ -194,7 +194,7 @@ def main():
 							if (lower(yesNo)=='yes'):
 								nodeIP=pareNodes[int(myNodeNum)-1][0][0]
 								portNumber=pareNodes[int(myNodeNum)-1][1][0]
-								print (bcolors.BOLD+'Redis config file  will rewrite on Node Number :'+myNodeNum+'  Node IP :'+nodeIP+'  Node Port :'+portNumber +bcolors.ENDC)
+								print (bcolors.BOLD+'Redis configuration will change on Node Number :'+myNodeNum+'  Node IP :'+nodeIP+'  Node Port :'+portNumber +bcolors.ENDC)
 								os.system(redisConnectCmd(nodeIP,portNumber,' CONFIG SET '+myConfigParameter))						
 							else:
 								print (colors.FAIL+'!!!Operation was canceled !!!'+bcolors.ENDC)
@@ -211,7 +211,7 @@ def main():
 								portNumber=pareNode[1][0]
 								nodeNumber=nodeNumber+1
 								if ( pareNode[4] ):
-									print ('Redis config file  will rewrite on Node Number :'+str(nodeNumber)+'  Node IP :'+nodeIP+'  Node Port :'+portNumber )
+									print ('Redis configuration will change  will rewrite on Node Number :'+str(nodeNumber)+'  Node IP :'+nodeIP+'  Node Port :'+portNumber )
 									os.system(redisConnectCmd(nodeIP,portNumber,' CONFIG SET '+myConfigParameter))						
 						else:
 							print ('!!!Operation was canceled !!!')
@@ -586,6 +586,7 @@ def main():
 					fromIP=raw_input(bcolors.BOLD +"\nPlease Enter target redis IP addres :"+bcolors.ENDC)
 					if (validIP(fromIP)):
 						fromPORT=raw_input(bcolors.BOLD +"\nPlease Enter target redis port number :"+bcolors.ENDC)
+						fromPWD=raw_input(bcolors.BOLD +"\nPlease Enter target redis password ( If No password, press enter ) :"+bcolors.ENDC)
 						if(fromPORT.isdigit()):
 	#						targetPWD=raw_input("\nPlease Enter target redis password :")
 							nodeNumber=0
@@ -599,9 +600,9 @@ def main():
 							toIP=pareNodes[nodeNumber-1][0][0]
 							toPort=pareNodes[nodeNumber-1][1][0]
 							print (bcolors.BOLD +'Migrating procces is starting... ' +bcolors.ENDC)
-							os.system('date')						
-							migrateDataFrom(toIP,toPort,fromIP,fromPORT)
-							os.system('date')						
+#							os.system('date')						
+							migrateDataFrom(toIP,toPort,fromIP,fromPORT,fromPWD)
+#							os.system('date')						
 							raw_input(bcolors.OKGREEN +"\n Migration completed. \n Press Enter to continue..."+bcolors.ENDC) 
 						else:
 							print (bcolors.FAIL +'!!! This is not valid port number !!!'+bcolors.ENDC)

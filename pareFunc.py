@@ -19,7 +19,9 @@ from screenMenu import *
 def clusterCheck(contactNode):
 	myNodeIP=pareNodes[contactNode-1][0][0]
 	myNodePORT=pareNodes[contactNode-1][1][0]
-	clusterString=redisBinaryDir+'src/redis-cli --cluster check '+myNodeIP+':'+myNodePORT+''
+	clusterString=redisBinaryDir+'src/redis-cli --cluster check '+myNodeIP+':'+myNodePORT+''	
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '	
 	retVal='Unkown'
 	checkStatus,checkResponse = commands.getstatusoutput(clusterString)		
 	if ( checkResponse.find('[ERR]') != -1 ):
@@ -30,6 +32,8 @@ def clusterFix(contactNode):
 	myNodeIP=pareNodes[contactNode-1][0][0]
 	myNodePORT=pareNodes[contactNode-1][1][0]
 	clusterString=redisBinaryDir+'src/redis-cli --cluster fix '+myNodeIP+':'+myNodePORT
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '
 	retVal='Unkown'
 	fixStatus,fixResponse = commands.getstatusoutput(clusterString)		
 	if ( fixResponse.find('[OK]') != -1 ):
@@ -91,6 +95,7 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 						nodeSlotNumber=nodeSlotNumber+(int(slotRange[1])-int(slotRange[0]))+1					
 					myIndex+=1
 				myNodeInfoList.append([spResponseArray[0],nodeSlotNumber-1])	
+	
 	if(balanceStrategy=='nodeBase'):
 		movedSlotsNumber=0
 		balanceSlotNumber=0
@@ -100,61 +105,69 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 #		print (str(FloatBalanceSlotNumber))
 #		print (str(float(FloatBalanceSlotNumberInt)))
 #		sleep(3)
-		if (FloatBalanceSlotNumber==float(FloatBalanceSlotNumberInt)):
-			balanceSlotNumber=int(FloatBalanceSlotNumber)
+		if (maxSlotBarier==4001):
+			clusterString=redisBinaryDir+'src/redis-cli --cluster rebalance '+pareNodes[contactNode-1][0][0]+':'+pareNodes[contactNode-1][1][0]
+			if(redisPwdAuthentication == 'on'):
+				clusterString+=' -a '+redisPwd+' '
+			os.system(clusterString)
 		else:
-			balanceSlotNumber=int(FloatBalanceSlotNumber)-1
-		myNodeInfoListIndexer=0
-		proccessHealth=True
-		for myNodeInfo in myNodeInfoList:
-			if(proccessHealth):
-				if(movedSlotsNumber<=maxSlotBarier ):
-#					print ('Step 1:Slot Barier :'+str(maxSlotBarier))
-#					print ('Step 1:balanceSlotNumber :'+str(balanceSlotNumber))
-					if(myNodeInfo[1] < balanceSlotNumber):
-						slotDiff=balanceSlotNumber-myNodeInfo[1]
-						stepSize=1
-						while ( slotDiff > 0 ):
-#							print ('Step 3:balanceSlotNumber :'+str(balanceSlotNumber))
-							# if(slotDiff>10 and slotDiff<=100):
-								# stepSize=10							
-							if(myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber and myNodeInfoList[myNodeInfoListIndexer][0]!=myNodeInfo[0]):
-								if ( myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber+30 and slotDiff>30):
-									stepSize=30
-								elif ( myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber+10 and slotDiff>10):
-									stepSize=10
-								elif ( myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber+5 and slotDiff>5):
-									stepSize=5									
-								else:
-									stepSize=1
-								reshardClusterSlient(contactNode,myNodeInfoList[myNodeInfoListIndexer][0],myNodeInfo[0],str(stepSize))
-								print ('FROM Node ID'+myNodeInfoList[myNodeInfoListIndexer][0]+'\n-> TO Node ID :'+myNodeInfo[0]+'\nMoved Slots :'+str(stepSize)+ bcolors.OKGREEN+' OK :)'+bcolors.ENDC)
-								print ('TO Node ID :'+str(myNodeInfo[0])+'		Slot Diff :'+bcolors.OKBLUE+str(slotDiff)+bcolors.ENDC)														
-								sleep(3)
-								if(clusterCheck(contactNode)==False):
-									print (bcolors.FAIL+'!!! Warning !!! Cluster Check Fail. I will try to fix It'+bcolors.ENDC)
-									sleep(10)
-									if(clusterFix(contactNode)):
-										print (bcolors.OKGREEN+' OK :) I fixed it ;)'+bcolors.ENDC)
-										sleep(5)
-									else:
-										proccessHealth=False							
-								myNodeInfoList[myNodeInfoListIndexer][1]-=stepSize
-								myNodeInfo[1]+=stepSize
-								slotDiff-=stepSize
-								movedSlotsNumber+=stepSize
-							if ( slotDiff <= 10):
-								stepSize=1
-							if(myNodeInfoListIndexer<len(myNodeInfoList)-1):
-								myNodeInfoListIndexer+=1
-							else:
-								myNodeInfoListIndexer=0
-					else:
-						print (bcolors.WARNING+'This node has more (or equal ) slots than  balance slot level :) '+myNodeInfo[0]+bcolors.ENDC)
-				else:
-					print (bcolors.WARNING+'You reached "max  move slots" per node barier. If you want to move further, run balancer again. Total Moved Slot Number:  '+str(movedSlotsNumber)+bcolors.ENDC)
+		
+			if (FloatBalanceSlotNumber==float(FloatBalanceSlotNumberInt)):
+				balanceSlotNumber=int(FloatBalanceSlotNumber)
 			else:
-				print (bcolors.FAIL+' !!! ERROR !!! I tried to fix Slots, however it does NOT work. The proccess was terminated !!! '+bcolors.ENDC)
+				balanceSlotNumber=int(FloatBalanceSlotNumber)-1
+			myNodeInfoListIndexer=0
+			proccessHealth=True
+			for myNodeInfo in myNodeInfoList:
+				if(proccessHealth):
+					if(movedSlotsNumber<=maxSlotBarier ):
+	#					print ('Step 1:Slot Barier :'+str(maxSlotBarier))
+	#					print ('Step 1:balanceSlotNumber :'+str(balanceSlotNumber))
+						if(myNodeInfo[1] < balanceSlotNumber):
+							slotDiff=balanceSlotNumber-myNodeInfo[1]
+							stepSize=1
+							while ( slotDiff > 0  and movedSlotsNumber<=maxSlotBarier ):
+	#							print ('Step 3:balanceSlotNumber :'+str(balanceSlotNumber))
+								# if(slotDiff>10 and slotDiff<=100):
+									# stepSize=10							
+								if(myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber and myNodeInfoList[myNodeInfoListIndexer][0]!=myNodeInfo[0]):
+									if ( myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber+30 and slotDiff>30):
+										stepSize=30
+									elif ( myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber+10 and slotDiff>10):
+										stepSize=10
+									elif ( myNodeInfoList[myNodeInfoListIndexer][1]>balanceSlotNumber+5 and slotDiff>5):
+										stepSize=5									
+									else:
+										stepSize=1
+									reshardClusterSlient(contactNode,myNodeInfoList[myNodeInfoListIndexer][0],myNodeInfo[0],str(stepSize))
+									print ('FROM Node ID'+myNodeInfoList[myNodeInfoListIndexer][0]+'\n-> TO Node ID :'+myNodeInfo[0]+'\nMoved Slots :'+str(stepSize)+ bcolors.OKGREEN+' OK :)'+bcolors.ENDC)
+									print ('TO Node ID :'+str(myNodeInfo[0])+'		Slot Diff :'+bcolors.OKBLUE+str(slotDiff)+bcolors.ENDC)														
+									sleep(3)
+									if(clusterCheck(contactNode)==False):
+										print (bcolors.FAIL+'!!! Warning !!! Cluster Check Fail. I will try to fix It'+bcolors.ENDC)
+										sleep(10)
+										if(clusterFix(contactNode)):
+											print (bcolors.OKGREEN+' OK :) I fixed it ;)'+bcolors.ENDC)
+											sleep(5)
+										else:
+											proccessHealth=False							
+									myNodeInfoList[myNodeInfoListIndexer][1]-=stepSize
+									myNodeInfo[1]+=stepSize
+									slotDiff-=stepSize
+									movedSlotsNumber+=stepSize
+								if ( slotDiff <= 10):
+									stepSize=1
+								if(myNodeInfoListIndexer<len(myNodeInfoList)-1):
+									myNodeInfoListIndexer+=1
+								else:
+									myNodeInfoListIndexer=0
+						else:
+							print (bcolors.WARNING+'This node has more (or equal ) slots than  balance slot level :) '+myNodeInfo[0]+bcolors.ENDC)
+					else:
+						print (bcolors.WARNING+'You reached "max  move slots" per node barier. If you want to move further, run balancer again. Total Moved Slot Number:  '+str(movedSlotsNumber)+bcolors.ENDC)
+				else:
+					print (bcolors.FAIL+' !!! ERROR !!! I tried to fix Slots, however it does NOT work. The proccess was terminated !!! '+bcolors.ENDC)
+		
 		clusterInfo(pareNodes[contactNode-1][0][0],pareNodes[contactNode-1][1][0])
 		showMemoryUsage()
 	elif(balanceStrategy=='memBase'):	
@@ -237,25 +250,39 @@ def clusterSlotBalanceMapper(balanceStrategy,maxSlotBarier):
 			(bcolors.WARNING+'!!! ERROR Different Array Size !!!'+bcolors.ENDC)
 	else:
 		return False
-def reshardClusterSlientUbuntu(contactNode,fromNodeID,toNodeID,slotNumber):
-	myNodeIP=pareNodes[contactNode-1][0][0]
-	myNodePORT=pareNodes[contactNode-1][1][0]
-	clusterString=redisBinaryDir+'src/redis-cli --cluster reshard '+myNodeIP+':'+myNodePORT+' --cluster-from '+fromNodeID+' --cluster-to '+toNodeID+' --cluster-slots '+slotNumber+' --cluster-yes'
-	returnCmd=os.system(clusterString)	
-	if(returnCmd==0):
-		return True
-	else:
-		return False		
+# def reshardClusterSlientUbuntu(contactNode,fromNodeID,toNodeID,slotNumber):
+	# myNodeIP=pareNodes[contactNode-1][0][0]
+	# myNodePORT=pareNodes[contactNode-1][1][0]
+	# clusterString=redisBinaryDir+'src/redis-cli --cluster reshard '+myNodeIP+':'+myNodePORT+' --cluster-from '+fromNodeID+' --cluster-to '+toNodeID+' --cluster-slots '+slotNumber+' --cluster-yes'
+	# returnCmd=os.system(clusterString)	
+	# if(returnCmd==0):
+		# return True
+	# else:
+		# return False		
 def reshardClusterSlient(contactNode,fromNodeID,toNodeID,slotNumber):
 	myNodeIP=pareNodes[contactNode-1][0][0]
 	myNodePORT=pareNodes[contactNode-1][1][0]
 	clusterString=redisBinaryDir+'src/redis-cli --cluster reshard '+myNodeIP+':'+myNodePORT+' --cluster-from '+fromNodeID+' --cluster-to '+toNodeID+' --cluster-slots '+slotNumber+' --cluster-yes'
 #	returnCmd=os.system(clusterString)	
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '
 	returnCmd,cmdResponse = commands.getstatusoutput(clusterString)	
 	if(returnCmd==0):
 		return True
 	else:
 		return False
+def reshardCluster(contactNode,fromNodeID,toNodeID,slotNumber):
+	myNodeIP=pareNodes[contactNode-1][0][0]
+	myNodePORT=pareNodes[contactNode-1][1][0]
+	clusterString=redisBinaryDir+'src/redis-cli --cluster reshard '+myNodeIP+':'+myNodePORT+' --cluster-from '+fromNodeID+' --cluster-to '+toNodeID+' --cluster-slots '+slotNumber+' --cluster-yes'
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '
+	returnCmd=os.system(clusterString)
+	if(returnCmd==0):
+		return True
+	else:
+		return False
+	slotInfo(myNodeIP,myNodePORT)		
 def changePareNodeListFile(oldValue,newValue):
 	fileContent=fileReadFull("pareNodeList.py")
 	newFileContent=fileContent.replace(oldValue,newValue)
@@ -267,16 +294,6 @@ def changePareConfigFile(oldValue,newValue):
 	fileClearWrite("pareConfig.py", newFileContent+'\n#### Config File was Changed by paredicma at '+get_datetime()+'\n#### old value:'+oldValue+'\n#### new value:'+newValue)
 	retVal=True
 	return retVal
-def reshardCluster(contactNode,fromNodeID,toNodeID,slotNumber):
-	myNodeIP=pareNodes[contactNode-1][0][0]
-	myNodePORT=pareNodes[contactNode-1][1][0]
-	clusterString=redisBinaryDir+'src/redis-cli --cluster reshard '+myNodeIP+':'+myNodePORT+' --cluster-from '+fromNodeID+' --cluster-to '+toNodeID+' --cluster-slots '+slotNumber+' --cluster-yes'
-	returnCmd=os.system(clusterString)
-	if(returnCmd==0):
-		return True
-	else:
-		return False
-	slotInfo(myNodeIP,myNodePORT)
 def redisNodesVersionControl():
 	nodeNumber=0
 	for pareNode in pareNodes:	
@@ -392,6 +409,8 @@ def clusterInfo(nodeIP,portNumber):
 	os.system(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master'))
 	print ('\nCluster Slots Check\n------------------------------------------ ')
 	clusterString=redisBinaryDir+'src/redis-cli --cluster check '+nodeIP+':'+portNumber
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '
 	clStatus,clResponse = commands.getstatusoutput(clusterString)	
 	print (bcolors.BOLD+clResponse[:clResponse.find('>>>')]+bcolors.ENDC)
 	raw_input(bcolors.BOLD+'\n----------------------\nPress Enter to Return Paredicmon Menu'+bcolors.ENDC)
@@ -400,11 +419,9 @@ def slotInfo(nodeIP,portNumber):
 	os.system(redisConnectCmd(nodeIP,portNumber,' CLUSTER SLOTS'))
 	os.system(redisConnectCmd(nodeIP,portNumber,' CLUSTER NODES |  grep master'))
 	print ('\nCluster Slots Check\n------------------------------------------ ')
-	clusterString=''
+	clusterString=redisBinaryDir+'src/redis-cli --cluster check '+nodeIP+':'+portNumber
 	if(redisPwdAuthentication == 'on'):
-		clusterString=redisBinaryDir+'src/redis-cli --cluster check '+nodeIP+':'+portNumber+' -a '+redisPwd+' '
-	else:
-		clusterString=redisBinaryDir+'src/redis-cli --cluster check '+nodeIP+':'+portNumber
+		clusterString+=' -a '+redisPwd+' '
 	clStatus,clResponse = commands.getstatusoutput(clusterString)	
 	print (bcolors.BOLD+clResponse[:clResponse.find('>>>')]+bcolors.ENDC)
 	raw_input(bcolors.BOLD+'\n----------------------\nPress Enter to Return Paredicmon Menu'+bcolors.ENDC )
@@ -594,8 +611,39 @@ def isNodeMaster(nodeIP,nodeNumber,portNumber):
 		return True
 	else :
 		return False
-def migrateDataFrom(toIP,toPort,fromIP,fromPORT):
-	os.system('./redis-'+redisVersion+'/src/redis-cli --cluster import '+toIP+':'+toPort+' --cluster-from '+fromIP+':'+fromPORT+' --cluster-copy > /dev/null')
+def migrateDataFrom(toIP,toPort,fromIP,fromPORT,fromPWD):
+	if(redisPwdAuthentication == 'on'):
+		nodeNumber=0
+		for pareNode in pareNodes:
+			nodeIP=pareNode[0][0]
+			portNumber=pareNode[1][0]
+			nodeNumber=nodeNumber+1
+			if ( pareNode[4] ):
+#				print ('Redis configuration will change  will rewrite on Node Number :'+str(nodeNumber)+'  Node IP :'+nodeIP+'  Node Port :'+portNumber )
+				os.system(redisConnectCmd(nodeIP,portNumber,' CONFIG SET requirepass "" '))						
+	if(fromPWD==''):		
+		os.system('date')
+		print (bcolors.BOLD +"\nData importing is starting... Please wait !!!"+bcolors.ENDC)
+		os.system('./redis-'+redisVersion+'/src/redis-cli --cluster import '+toIP+':'+toPort+' --cluster-from '+fromIP+':'+fromPORT+' --cluster-copy > /dev/null')
+		os.system('date')
+		print (bcolors.BOLD +"\nData importing ended. "+bcolors.ENDC)
+	else:
+		os.system('./redis-'+redisVersion+'/src/redis-cli -h '+fromIP+' -p '+fromPORT+' --no-auth-warning -a '+fromPWD+' Config set requirepass ""')
+		os.system('date')
+		print (bcolors.BOLD +"\nData importing is starting... Please wait !!!"+bcolors.ENDC)
+		os.system('./redis-'+redisVersion+'/src/redis-cli --cluster import '+toIP+':'+toPort+' --cluster-from '+fromIP+':'+fromPORT+' --cluster-copy > /dev/null')
+		os.system('date')
+		print (bcolors.BOLD +"\nData importing ended. "+bcolors.ENDC)
+		os.system('./redis-'+redisVersion+'/src/redis-cli -h '+fromIP+' -p '+fromPORT+' Config set requirepass "'+fromPWD+'"')
+	if(redisPwdAuthentication == 'on'):
+		nodeNumber=0
+		for pareNode in pareNodes:
+			nodeIP=pareNode[0][0]
+			portNumber=pareNode[1][0]
+			nodeNumber=nodeNumber+1
+			if ( pareNode[4] ):
+#				print ('Redis configuration will change  will rewrite on Node Number :'+str(nodeNumber)+'  Node IP :'+nodeIP+'  Node Port :'+portNumber )
+				os.system(redisConnectCmd(nodeIP,portNumber,' CONFIG SET requirepass '+redisPwd))						
 def isNodeHasSlave(nodeIP,nodeNumber,portNumber):
 	pingStatus,pingResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' info replication | grep connected_slaves '))
 	if ( pingStatus == 0 & pingResponse.find(':0')>0 ):
@@ -608,6 +656,8 @@ def makeRedisCluster( nodesString,redisReplicationNumber ):
 		clusterString=redisBinaryDir+'src/redis-cli --cluster create '+nodesString
 	else:
 		clusterString=redisBinaryDir+'src/redis-cli --cluster create '+nodesString+' --cluster-replicas '+redisReplicationNumber
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '
 	logWrite(pareLogFile,bcolors.BOLD+':: Cluster create string : '+clusterString+bcolors.ENDC)
 	os.system(clusterString)
 def delPareNode(delNodeID):
@@ -625,6 +675,8 @@ def delPareNode(delNodeID):
 	if(pingStatus==0):
 		queryRespondList=queryRespond.split(' ')
 		clusterString=redisBinaryDir+'src/redis-cli --cluster del-node '+targetIP+':'+targetPORT+' '+queryRespondList[0]+' '
+		if(redisPwdAuthentication == 'on'):
+			clusterString+=' -a '+redisPwd+' '
 		logWrite(pareLogFile,bcolors.BOLD+'deleting cluster node from redis cluster : '+clusterString+bcolors.ENDC)
 		procStatus,procResult = commands.getstatusoutput(clusterString)
 		if(procResult.find('[ERR]')==-1):
@@ -650,6 +702,8 @@ def addMasterNode(serverIP,serverPORT):
 				break		
 		nodeNumber+=1
 	clusterString=redisBinaryDir+'src/redis-cli --cluster add-node '+serverIP+':'+serverPORT+' '+targetIP+':'+targetPORT
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '	
 	if(pingNode(serverIP,serverPORT)):
 		logWrite(pareLogFile,bcolors.BOLD+'Adding new master node to redis cluster : '+clusterString+bcolors.ENDC)
 		if(os.system(clusterString)==0):
@@ -671,6 +725,8 @@ def addSlaveNode(serverIP,serverPORT):
 				break		
 		nodeNumber+=1
 	clusterString=redisBinaryDir+'src/redis-cli --cluster add-node '+serverIP+':'+serverPORT+' '+targetIP+':'+targetPORT+' --cluster-slave'
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '	
 	if(pingNode(serverIP,serverPORT)):
 		logWrite(pareLogFile,bcolors.BOLD+'Adding new slave node to redis cluster : '+clusterString+bcolors.ENDC)
 		if(os.system(clusterString)==0):
@@ -691,6 +747,8 @@ def addSpecificSlaveNode(serverIP,serverPORT,cMasterID):
 				break		
 		nodeNumber+=1
 	clusterString=redisBinaryDir+'src/redis-cli --cluster add-node '+serverIP+':'+serverPORT+' '+targetIP+':'+targetPORT+' --cluster-slave --cluster-master-id '+cMasterID
+	if(redisPwdAuthentication == 'on'):
+		clusterString+=' -a '+redisPwd+' '
 	if(pingNode(serverIP,serverPORT)):
 		logWrite(pareLogFile,bcolors.BOLD+'Adding new slave node to redis cluster : '+clusterString+bcolors.ENDC)
 		if(os.system(clusterString)==0):
