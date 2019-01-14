@@ -776,13 +776,13 @@ def startNode(nodeIP,nodeNumber,portNumber,dedicateCpuCores):
 	else :
 		if(nodeIP==pareServerIp):
 			if ( dedicateCore ) :
-				startResult,startOutput =commands.getstatusoutput('cd '+redisDataDir+';numactl --physcpubind='+dedicateCpuCores+' '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
+				startResult,startOutput =commands.getstatusoutput('cd '+redisDataDir+';numactl --physcpubind='+dedicateCpuCores+' --localalloc '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
 				print ('numactl --physcpubind='+dedicateCpuCores+' '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
 			else:
 				startResult,startOutput =commands.getstatusoutput('cd '+redisDataDir+';'+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')		
 		else:
 			if ( dedicateCore ) :
-				startResult,startOutput =commands.getstatusoutput('ssh -q -o "StrictHostKeyChecking no"  '+pareOSUser+'@'+nodeIP+' -C  "cd '+redisDataDir+';numactl --physcpubind='+dedicateCpuCores+' '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf"')
+				startResult,startOutput =commands.getstatusoutput('ssh -q -o "StrictHostKeyChecking no"  '+pareOSUser+'@'+nodeIP+' -C  "cd '+redisDataDir+';numactl --physcpubind='+dedicateCpuCores+' --localalloc '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf"')
 			else:
 				startResult,startOutput =commands.getstatusoutput('ssh -q -o "StrictHostKeyChecking no"  '+pareOSUser+'@'+nodeIP+' -C  "cd '+redisDataDir+';'+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf"')
 		if ( startResult == 0 ):
