@@ -54,7 +54,7 @@ def main():
 					print (bcolors.FAIL+'!!! Warning !!!! A problem occurred, while memory usage checking !!! nodeID :'+str(nodeNumber)+' NodeIP:'+nodeIP+' NodePort:'+portNumber+''+bcolors.ENDC)
 		sleep(2)					
 		os.system("clear")					
-		print ('Memory Usage\n-------------------------------')
+		print ( bcolors.HEADER+projectName+' Redis Cluster  Memory Usage'+bcolors.ENDC+'\n---------------------------------------------')
 		print (bcolors.HEADER+'nodeID 		NodeIP				 NodePort	Used Mem(GB)	Max Mem(GB)	Usage Percentage(%)'+bcolors.ENDC)
 		print printTextMaster+bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC
 		print printTextSlave
