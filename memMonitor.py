@@ -8,6 +8,9 @@ from paredicma import *
 def main():
 	os.system("clear")
 	while(True):
+#		os.system("clear")
+#		print ('Memory Usage\n-------------------------------')
+#		print (bcolors.HEADER+'nodeID 		NodeIP				 NodePort	Used Mem(GB)	Max Mem(GB)	Usage Percentage(%)'+bcolors.ENDC)
 		nodeNumber=0
 		totalMemPer=0.0
 		totalUsedMemByte=0
@@ -24,13 +27,15 @@ def main():
 				if ( memStatus == 0 ):
 					usedMemByte=float(memResponse[12:memResponse.find('maxmemory:')-1])
 					maxMemByte=float(memResponse[memResponse.find('maxmemory:')+10:])
-					usedMem=round((usedMemByte)/(1024*1024*1024),2)
-					maxMem=round((maxMemByte)/(1024*1024*1024),2)
+					usedMem=round((usedMemByte)/(1024*1024*1024),3)
+					maxMem=round((maxMemByte)/(1024*1024*1024),3)
 					usagePerMem=round((usedMem/maxMem)*100,2)
+#					totalUsedMemByte+=usedMemByte
+#					totalMaxMemByte+=maxMemByte
 					if (isNodeMaster(nodeIP,nodeNumber,portNumber)):
-						totalUsedMemByte+=usedMemByte
-						totalMaxMemByte+=maxMemByte						
 						isMaster=True
+						totalUsedMemByte+=usedMemByte
+						totalMaxMemByte+=maxMemByte
 						str(nodeNumber)+'	'+nodeIP+'-( M )			'+portNumber+'		'+str(usedMem)+'		'+str(maxMem)+'		'+str(usagePerMem)+'%'+bcolors.ENDC+'\n'
 					else:
 						isMaster=False
@@ -52,18 +57,18 @@ def main():
 							printTextSlave+=bcolors.OKGREEN+str(nodeNumber)+'	'+nodeIP+'-( S )			'+portNumber+'		'+str(usedMem)+'		'+str(maxMem)+'		'+str(usagePerMem)+'%'+bcolors.ENDC+'\n'
 				else :
 					print (bcolors.FAIL+'!!! Warning !!!! A problem occurred, while memory usage checking !!! nodeID :'+str(nodeNumber)+' NodeIP:'+nodeIP+' NodePort:'+portNumber+''+bcolors.ENDC)
-		sleep(2)					
-		os.system("clear")					
-		print ( bcolors.HEADER+projectName+' Redis Cluster  Memory Usage'+bcolors.ENDC+'\n---------------------------------------------')
-		print (bcolors.HEADER+'nodeID 		NodeIP				 NodePort	Used Mem(GB)	Max Mem(GB)	Usage Percentage(%)'+bcolors.ENDC)
+		os.system("clear")
+                print ( bcolors.HEADER+projectName+' Redis Cluster  Memory Usage'+bcolors.ENDC+' ( '+get_datetime()+' )\n---------------------------------------------')
+                print (bcolors.HEADER+'nodeID           NodeIP                           NodePort       Used Mem(GB)    Max Mem(GB)     Usage Percentage(%)'+bcolors.ENDC)
 		print printTextMaster+bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC
 		print printTextSlave
-		totalUsedMem=round(((totalUsedMemByte)/(1024*1024*1024)),2)
-		totalMaxMem=round(((totalMaxMemByte)/(1024*1024*1024)),2)
+		totalUsedMem=round(((totalUsedMemByte)/(1024*1024*1024)),3)
+		totalMaxMem=round(((totalMaxMemByte)/(1024*1024*1024)),3)
 		if (totalMaxMem==0):
 			totalMemPer=0.0
 		else:
 			totalMemPer=round(((totalUsedMem/totalMaxMem)*100),2)
 		print (bcolors.BOLD+'-------------------------------------------------------------------------------------------------------'+bcolors.ENDC)
-		print (bcolors.BOLD+'TOTAL ( Only Master)						:'+str(totalUsedMem)+'GB	'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
+		print (bcolors.BOLD+'TOTAL( Only Master )						:'+str(totalUsedMem)+'GB	'+str(totalMaxMem)+'GB		'+str(totalMemPer)+'% '+bcolors.ENDC)
+		sleep(10)
 main()

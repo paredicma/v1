@@ -777,7 +777,7 @@ def startNode(nodeIP,nodeNumber,portNumber,dedicateCpuCores):
 		if(nodeIP==pareServerIp):
 			if ( dedicateCore ) :
 				startResult,startOutput =commands.getstatusoutput('cd '+redisDataDir+';numactl --physcpubind='+dedicateCpuCores+' --localalloc '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
-				print ('numactl --physcpubind='+dedicateCpuCores+' '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
+				print ('numactl --physcpubind='+dedicateCpuCores+' –localalloc '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
 			else:
 				startResult,startOutput =commands.getstatusoutput('cd '+redisDataDir+';'+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')		
 		else:
@@ -1062,15 +1062,23 @@ def makeDir(dir_name):
 		logWrite(pareLogFile,bcolors.FAIL+'!!! An error is occurred while writing directory  !!! = ' + dir_name+bcolors.ENDC)
 		return False
 def get_datetime():
-	mounth=str(localtime()[1])
+	my_year=str(localtime()[0])
+	my_mounth=str(localtime()[1])
+	my_day=str(localtime()[2])
 	my_hour=str(localtime()[3])
 	my_min=str(localtime()[4])
-	if(len(str(localtime()[1]))==1):
-		mounth="0"+str(localtime()[1])
-	day=str(localtime()[2])
-	if(len(str(localtime()[2]))==1):
-		day="0"+str(localtime()[2])
-	return str(localtime()[0])+"."+mounth+"."+day+" "+my_hour+":"+my_min
+	my_sec=str(localtime()[5])	
+	if(len(str(my_mounth))==1):
+		my_mounth="0"+my_mounth		
+	if(len(my_day)==1):
+		my_day="0"+my_day
+	if(len(my_hour)==1):
+		my_hour="0"+my_hour
+	if(len(my_min)==1):
+		my_min="0"+my_min
+	if(len(my_sec)==1):
+		my_sec="0"+my_sec
+	return my_year+"."+my_mounth+"."+my_day+" "+my_hour+":"+my_min+":"+my_sec
 def fileAppendWrite(file, writeText):
 	try :
 		fp=open(file,'ab')
