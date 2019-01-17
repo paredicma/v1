@@ -490,9 +490,9 @@ def validIP(IPaddr):
 def redisConnectCmd(nodeIP,portNumber,redisCmd):
 	redisCliCmd = ''
 	if ( redisPwdAuthentication ):
-		redisCliCmd='./redis-'+redisVersion+'/src/redis-cli -h '+nodeIP+' -p '+portNumber+' --no-auth-warning -a '+redisPwd+' '+redisCmd
+		redisCliCmd=redisBinaryDir+'src/redis-cli -h '+nodeIP+' -p '+portNumber+' --no-auth-warning -a '+redisPwd+' '+redisCmd
 	else:
-		redisCliCmd='./redis-'+redisVersion+'/src/redis-cli -h '+nodeIP+' -p '+portNumber+' '+redisCmd
+		redisCliCmd=redisBinaryDir+'/src/redis-cli -h '+nodeIP+' -p '+portNumber+' '+redisCmd
 	return redisCliCmd
 def nodeInfo(nodeIP,nodeNumber,portNumber,infoCmd):
 	retVal='Unkown'
