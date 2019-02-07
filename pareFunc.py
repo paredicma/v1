@@ -490,10 +490,17 @@ def validIP(IPaddr):
 def redisConnectCmd(nodeIP,portNumber,redisCmd):
 	redisCliCmd = ''
 	if ( redisPwdAuthentication ):
+		redisCliCmd=redisBinaryDir+'src/redis-cli -h '+nodeIP+' -p '+portNumber+' --no-auth-warning -a '+redisPwd+' '+redisCmd
+	else:
+		redisCliCmd=redisBinaryDir+'/src/redis-cli -h '+nodeIP+' -p '+portNumber+' '+redisCmd
+	return redisCliCmd
+def redisConnectCmdwithTimeout(nodeIP,portNumber,redisCmd):
+	redisCliCmd = ''
+	if ( redisPwdAuthentication ):
 		redisCliCmd='timeout 3  '+redisBinaryDir+'src/redis-cli -h '+nodeIP+' -p '+portNumber+' --no-auth-warning -a '+redisPwd+' '+redisCmd
 	else:
 		redisCliCmd='timeout 3  '+redisBinaryDir+'/src/redis-cli -h '+nodeIP+' -p '+portNumber+' '+redisCmd
-	return redisCliCmd
+	return redisCliCmd	
 def nodeInfo(nodeIP,nodeNumber,portNumber,infoCmd):
 	retVal='Unkown'
 	listStatus,listResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,'info '+infoCmd))		
@@ -504,7 +511,7 @@ def nodeInfo(nodeIP,nodeNumber,portNumber,infoCmd):
 	return retVal
 def slaveORMasterNode(nodeIP,nodeNumber,portNumber):
 	retVal='U'
-	listStatus,listResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,'cluster nodes | grep myself'))
+	listStatus,listResponse = commands.getstatusoutput(redisConnectCmdwithTimeout(nodeIP,portNumber,'cluster nodes | grep myself'))
 	if ( listStatus == 0 ):
 		if 'master' in listResponse:
 			retVal='M'
@@ -777,7 +784,7 @@ def startNode(nodeIP,nodeNumber,portNumber,dedicateCpuCores):
 		if(nodeIP==pareServerIp):
 			if ( dedicateCore ) :
 				startResult,startOutput =commands.getstatusoutput('cd '+redisDataDir+';numactl --physcpubind='+dedicateCpuCores+' --localalloc '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
-				print ('numactl --physcpubind='+dedicateCpuCores+' –localalloc '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
+				print ('numactl --physcpubind='+dedicateCpuCores+' --localalloc '+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')
 			else:
 				startResult,startOutput =commands.getstatusoutput('cd '+redisDataDir+';'+redisBinaryDir+'src/redis-server '+redisConfigDir+'node'+nodeNumber+'/redisN'+nodeNumber+'_P'+portNumber+'.conf')		
 		else:
