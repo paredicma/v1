@@ -354,17 +354,17 @@ def restartAllMasters(newRedisVersion):
 	#				sleep(2)
 						pmdStatus,cmdResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' info server | grep  redis_version'))
 						if(cmdResponse.find(newRedisVersion)>=0):
-							print (bcolors.OKGREEN+'Master redis node started  with new version :'+newRedisVersion+bcolors.ENDC)
+							logWrite(pareLogFile,bcolors.OKGREEN+'Master redis node started  with new version :'+newRedisVersion+bcolors.ENDC)
 							print (cmdResponse)
-							print (bcolors.BOLD+'node Id :'+str(nodeNumber)+' nodeIP: '+nodeIP+' nodePort:'+portNumber+bcolors.ENDC)
+							logWrite(pareLogFile,bcolors.BOLD+'node Id :'+str(nodeNumber)+' nodeIP: '+nodeIP+' nodePort:'+portNumber+bcolors.ENDC)
 						else:
 							stateResult=False
-							print (bcolors.FAIL+'!!! There might be a problem with master restart !!! Manuel check is recommended !!!'+bcolors.ENDC)
+							logWrite(pareLogFile,bcolors.FAIL+'!!! There might be a problem with master restart !!! Manuel check is recommended !!!'+bcolors.ENDC)
 					else:
-						print (bcolors.WARNING+'This node has already upgrated..'+bcolors.ENDC)
+						logWrite(pareLogFile,bcolors.WARNING+'This node has already upgrated..'+bcolors.ENDC)
 #			restartNode(nodeIP,str(nodeNumber),portNumber,dedicateCpuCores)
 	else:
-		print ('!!! Master nodes upgrade was canceled !!! Not Sync !!!')
+		logWrite(pareLogFile,'!!! Master nodes upgrade was canceled !!! Not Sync !!!')
 		stateResult=False
 	return stateResult
 def restartAllSlaves(newRedisVersion):
@@ -387,12 +387,12 @@ def restartAllSlaves(newRedisVersion):
 					startNode(nodeIP,str(nodeNumber),portNumber,dedicateCpuCores)
 					pmdStatus,cmdResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' info server | grep  redis_version'))
 					if(cmdResponse.find(newRedisVersion)>=0):
-						print (bcolors.BOLD+'Slave redis node started  with new version :'+newRedisVersion)
+						logWrite(pareLogFile,bcolors.BOLD+'Slave redis node started  with new version :'+newRedisVersion)
 						print (cmdResponse)
-						print (bcolors.BOLD+'node Id :'+str(nodeNumber)+' nodeIP: '+nodeIP+' nodePort:'+portNumber+bcolors.ENDC)
+						logWrite(pareLogFile,bcolors.BOLD+'node Id :'+str(nodeNumber)+' nodeIP: '+nodeIP+' nodePort:'+portNumber+bcolors.ENDC)
 					else:
 						stateResult=False
-						print (bcolors.FAIL+'!!! There might be a problem with slave restart !!! Manuel check is recommended !!!'+bcolors.ENDC)
+						logWrite(pareLogFile,bcolors.FAIL+'!!! There might be a problem with slave restart !!! Manuel check is recommended !!!'+bcolors.ENDC)
 				else:
 					print (bcolors.WARNING+'This node has already upgrated..'+bcolors.ENDC)
 #			restartNode(nodeIP,str(nodeNumber),portNumber,dedicateCpuCores)
@@ -630,17 +630,17 @@ def migrateDataFrom(toIP,toPort,fromIP,fromPORT,fromPWD):
 				os.system(redisConnectCmd(nodeIP,portNumber,' CONFIG SET requirepass "" '))						
 	if(fromPWD==''):		
 		os.system('date')
-		print (bcolors.BOLD +"\nData importing is starting... Please wait !!!"+bcolors.ENDC)
+		logWrite(pareLogFile,bcolors.BOLD +"\nData importing is starting... Please wait !!!"+bcolors.ENDC)
 		os.system('./redis-'+redisVersion+'/src/redis-cli --cluster import '+toIP+':'+toPort+' --cluster-from '+fromIP+':'+fromPORT+' --cluster-copy > /dev/null')
 		os.system('date')
-		print (bcolors.BOLD +"\nData importing ended. "+bcolors.ENDC)
+		logWrite(pareLogFile,bcolors.BOLD +"\nData importing ended. "+bcolors.ENDC)
 	else:
 		os.system('./redis-'+redisVersion+'/src/redis-cli -h '+fromIP+' -p '+fromPORT+' --no-auth-warning -a '+fromPWD+' Config set requirepass ""')
 		os.system('date')
-		print (bcolors.BOLD +"\nData importing is starting... Please wait !!!"+bcolors.ENDC)
+		logWrite(pareLogFile,bcolors.BOLD +"\nData importing is starting... Please wait !!!"+bcolors.ENDC)
 		os.system('./redis-'+redisVersion+'/src/redis-cli --cluster import '+toIP+':'+toPort+' --cluster-from '+fromIP+':'+fromPORT+' --cluster-copy > /dev/null')
 		os.system('date')
-		print (bcolors.BOLD +"\nData importing ended. "+bcolors.ENDC)
+		logWrite(pareLogFile,bcolors.BOLD +"\nData importing ended. "+bcolors.ENDC)
 		os.system('./redis-'+redisVersion+'/src/redis-cli -h '+fromIP+' -p '+fromPORT+' Config set requirepass "'+fromPWD+'"')
 	if(redisPwdAuthentication == 'on'):
 		nodeNumber=0
@@ -689,11 +689,11 @@ def delPareNode(delNodeID):
 		if(procResult.find('[ERR]')==-1):
 			print (queryRespond)
 			return True
-			print (bcolors.OKGREEN+'Node was deleted. OK :)!!!: '+clusterString+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.OKGREEN+'Node was deleted. OK :)!!!: '+clusterString+bcolors.ENDC)
 		else:
 			print (queryRespond)
-			print (bcolors.FAIL+'!!! deleting cluster node was canceled !!!: '+clusterString+bcolors.ENDC)
-			print (bcolors.FAIL+'!!! This node might be NON-empty master node !!!'+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.FAIL+'!!! deleting cluster node was canceled !!!: '+clusterString+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.FAIL+'!!! This node might be NON-empty master node !!!'+bcolors.ENDC)
 			return False
 	else:
 		return False
@@ -715,7 +715,7 @@ def addMasterNode(serverIP,serverPORT):
 		logWrite(pareLogFile,bcolors.BOLD+'Adding new master node to redis cluster : '+clusterString+bcolors.ENDC)
 		if(os.system(clusterString)==0):
 			return True
-			print (bcolors.OKGREEN+'New Node was added. OK :)!!!: Node IP:'+serverIP+' PORT:'+serverPORT+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.OKGREEN+'New Node was added. OK :)!!!: Node IP:'+serverIP+' PORT:'+serverPORT+bcolors.ENDC)
 		else:
 			return False
 	else:
@@ -817,24 +817,33 @@ def switchMasterSlave(nodeIP,nodeNumber,portNumber):
 			proccessResponse=proccessResponse[cutCursor3+5:]
 			cutCursor4=proccessResponse.find(',')
 			slavePort=proccessResponse[:cutCursor4]
-			print (bcolors.WARNING+'Master/slave switch proccess is starting... This might take some times'+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.WARNING+'Master/slave switch proccess is starting... This might take some times'+bcolors.ENDC)
 			spStatus,spResponse = commands.getstatusoutput(redisConnectCmd(slaveIP,slavePort,' CLUSTER FAILOVER '))
-			sleep(20)
+#			sleep(20)
 			if (spStatus==0):
-#				print (redisConnectCmd(nodeIP,portNumber,' CLUSTER FAILOVER ')
-				print (bcolors.OKGREEN+'Switch master/slave command successed.'+bcolors.ENDC)
-				print (bcolors.OKBLUE+'New Slave  IP:PORT '+nodeIP+':'+portNumber+bcolors.ENDC)
-				print (bcolors.OKBLUE+'New Master IP:PORT '+slaveIP+':'+slavePort+bcolors.ENDC)
+				turnWhile=True
+				while(turnWhile):
+					spStat,spResp= commands.getstatusoutput(redisConnectCmdwithTimeout(slaveIP,slavePort,' INFO replication '))
+					if(spResp.find('role:master')>-1):
+						turnWhile=False
+						logWrite(pareLogFile,bcolors.OKGREEN+'Switch master/slave command successed.'+bcolors.ENDC)
+						logWrite(pareLogFile,bcolors.OKBLUE+'New Slave  IP:PORT '+nodeIP+':'+portNumber+bcolors.ENDC)
+						logWrite(pareLogFile,bcolors.OKBLUE+'New Master IP:PORT '+slaveIP+':'+slavePort+bcolors.ENDC)
+						sleep(3)
+					else:
+						print(bcolors.WARNING+'Switch master/slave continue... Please wait'+bcolors.ENDC)					
+						sleep(5)				
+
 				return True
 			else:
-				print (bcolors.FAIL+'!!! Switch master/slave command failed. !!!'+bcolors.ENDC)
+				logWrite(pareLogFile,bcolors.FAIL+'!!! Switch master/slave command failed. !!!'+bcolors.ENDC)
 				return False
 
 		else:
-			print (bcolors.FAIL+'!!! There is no designated slave for node :' + str(nodeNumber) +' . Operation was canceled !!!'+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.FAIL+'!!! There is no designated slave for node :' + str(nodeNumber) +' . Operation was canceled !!!'+bcolors.ENDC)
 			return False
 	else:
-		print (bcolors.FAIL+'!!!This node is not Master. The proccess canceled!!!'+bcolors.ENDC)
+		logWrite(pareLogFile,bcolors.FAIL+'!!!This node is not Master. The proccess canceled!!!'+bcolors.ENDC)
 		return False
 def killNode(nodeIP,nodeNumber,portNumber):
 	proccessResponse = ''
@@ -887,7 +896,7 @@ def killNode(nodeIP,nodeNumber,portNumber):
 				print (bcolors.WARNING+'!!! Redis Node Stopping proccess continue... !!! Please wait. '+bcolors.ENDC )
 				sleep(5)
 			else:
-				print (bcolors.BOLD+'!!! Redis Node Stopped !!! '+bcolors.ENDC )
+				logWrite(pareLogFile,bcolors.BOLD+'!!! Redis Node Stopped !!! '+bcolors.ENDC )
 				turnWhile=False
 		
 		sleep(2)
@@ -900,7 +909,7 @@ def killNode(nodeIP,nodeNumber,portNumber):
 				print (bcolors.WARNING+'!!! Redis Node Stopping proccess continue... !!! Please wait. '+bcolors.ENDC )
 				sleep(5)
 			else:
-				print (bcolors.BOLD+'!!! Redis Node Stopped !!! '+bcolors.ENDC )
+				logWrite(pareLogFile,bcolors.BOLD+'!!! Redis Node Stopped !!! '+bcolors.ENDC )
 				turnWhile=False		
 		sleep(2)
 	else :
@@ -922,7 +931,7 @@ def redisBinaryCopier(myServerIP,myRedisVersion):
 			logWrite(pareLogFile,bcolors.OKGREEN+':: '+myServerIP+' :: OK -> redis binary was  copied.'+bcolors.ENDC)
 			return True
 		else:
-			print (bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
 			return False
 	else:
 #		cmdStatus=os.system('scp -r redis-'+myRedisVersion+'/* '+pareOSUser+'@'+myServerIP+':'+redisBinaryDir)
@@ -931,7 +940,7 @@ def redisBinaryCopier(myServerIP,myRedisVersion):
 			logWrite(pareLogFile,bcolors.OKGREEN+':: '+myServerIP+' :: OK -> redis binary was copied.'+bcolors.ENDC)
 			return True
 		else:
-			print (bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
 			return False			
 def redisNewBinaryCopier(myServerIP,myRedisVersion):
 	global redisBinaryDir
@@ -947,10 +956,10 @@ def redisNewBinaryCopier(myServerIP,myRedisVersion):
 				logWrite(pareLogFile,bcolors.OKGREEN+':: '+myServerIP+' :: OK -> redis binary was  copied.'+bcolors.ENDC)
 				return True
 			else:
-				print (bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
+				logWrite(pareLogFile,bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
 				return False
 		else:
-			print (bcolors.FAIL+' !!! A problem occurred while binary directory making !!!'+bcolors.ENDC)
+			logWrite(pareLogFile,bcolors.FAIL+' !!! A problem occurred while binary directory making !!!'+bcolors.ENDC)
 			return False							
 	else:
 		if(makeRemoteDir(redisBinaryDir,myServerIP)):
@@ -960,10 +969,10 @@ def redisNewBinaryCopier(myServerIP,myRedisVersion):
 				logWrite(pareLogFile,bcolors.OKGREEN+':: '+myServerIP+' :: OK -> redis binary was copied.'+bcolors.ENDC)
 				return True
 			else:
-				print (bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
+				logWrite(pareLogFile,bcolors.FAIL+' !!! A problem occurred while binary copy proccess !!!'+bcolors.ENDC)
 				return False			
 		else:
-			print (bcolors.FAIL+' !!! A problem occurred while binary directory making !!!'+bcolors.ENDC)		
+			logWrite(pareLogFile,bcolors.FAIL+' !!! A problem occurred while binary directory making !!!'+bcolors.ENDC)		
 			return False			
 def compileRedis(redisTarFileName,redisCurrentVersion):
 	compileStatus=False
