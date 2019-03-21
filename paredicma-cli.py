@@ -187,9 +187,9 @@ def main():
 					print (bcolors.BOLD+'Change Redis Configuration'+bcolors.ENDC)
 					funcNodesList()				
 					myNodeNum=raw_input(bcolors.BOLD+'\nPlease Enter Node Number or Enter "all": '+bcolors.ENDC)
-					if (myLineNum.isdigit() or myLineNum==''):
-						if ( myLineNum=='' ):
-							myLineNum='40'
+					if (myNodeNum.isdigit() or myNodeNum==''):
+						if ( myNodeNum=='' ):
+							myNodeNum='40'
 						if (int(myNodeNum)<=len(pareNodes) and  pareNodes[int(myNodeNum)-1][4]):
 							myConfigParameter=raw_input(bcolors.BOLD+'\nPlease Enter Configuration  parameter (for example: "slowlog-max-len 10" ,"maxmemory 3gb" ext.) \n	: '+bcolors.ENDC)
 							yesNo=raw_input(bcolors.WARNING+'\nAre you sure to set this parameter -> '+myConfigParameter+'  (yes/no):'+bcolors.ENDC)
