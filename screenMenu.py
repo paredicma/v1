@@ -1,4 +1,5 @@
 import os
+import pareConfig
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -12,7 +13,9 @@ def menuMon():  ## menuManagger
 	os.system("clear")
 	currentMenu='menuMake'
 	print (	bcolors.HEADER+'''
-	PAREDICMON - REDIS CLUSTER MONITOR
+	PAREDICMON - REDIS CLUSTER MONITOR 
+	------------------------------------------------
+		***** '''+pareConfig.projectName+''' *****
 	------------------------------------------------'''+bcolors.ENDC)
 	print (bcolors.BOLD+'	  1 - Ping  Node(s)    	        '+bcolors.ENDC)
 	print (bcolors.BOLD+'	  2 - List Nodes        		'+bcolors.ENDC)
@@ -31,6 +34,8 @@ def menuMan():  ## menuMonitor
 	currentMenu='menuMake'
 	print (	bcolors.HEADER+'''
 	PAREDICMAN - REDIS CLUSTER MANAGER
+	------------------------------------------------
+		***** '''+pareConfig.projectName+''' *****
 	------------------------------------------------'''+bcolors.ENDC)
 	print (bcolors.BOLD+'	  1 - Start/Stop/Restart Redis Node     		'+ bcolors.ENDC)
 	print (bcolors.BOLD+'	  2 - Switch Master/Slave Nodes					'+ bcolors.ENDC)
@@ -49,6 +54,8 @@ def menuMum():  ## menuMonitor
 	currentMenu='menuMake'
 	print (	bcolors.HEADER+'''
 	PAREDICMUM - REDIS CLUSTER MIGRATION&UPGRADE&MAINTENANCE
+	------------------------------------------------
+		***** '''+pareConfig.projectName+''' *****
 	------------------------------------------------'''+bcolors.ENDC)
 	print (bcolors.BOLD+'	  1 - Add/Delete Redis Node        				'+ bcolors.ENDC)
 	print (bcolors.BOLD+'	  2 - Move Slot(s)       						'+ bcolors.ENDC)
@@ -68,6 +75,8 @@ def menuMain():
 	if(os.path.isfile('paredicma.done')):
 		print (bcolors.HEADER+'''
 	PAREDICMA CLI (Python Automatic REDIs Cluster MAker)                
+	------------------------------------------------
+		***** '''+pareConfig.projectName+''' *****
 	------------------------------------------------'''+ bcolors.ENDC)
 		print (bcolors.BOLD+'	1 - Redis Cluster Monitor - ( paredicmon ) '+ bcolors.ENDC)
 		print (bcolors.BOLD+'	2 - Redis Cluster Manager - ( paredicman ) '+ bcolors.ENDC)
@@ -79,6 +88,8 @@ def menuMain():
 	else :
 		print (bcolors.HEADER+'''
 	PAREDICMA CLI (Python Automatic REDIs Cluster MAker)
+	------------------------------------------------
+		***** '''+pareConfig.projectName+''' *****
 	------------------------------------------------'''+ bcolors.ENDC)
 		print (bcolors.WARNING+'	NAP - Redis Cluster Monitor - ( paredicmon ) '+ bcolors.ENDC)
 		print (bcolors.WARNING+'	NAP - Redis Cluster Manager - ( paredicman ) '+ bcolors.ENDC)
@@ -87,5 +98,3 @@ def menuMain():
 		print (bcolors.BOLD+'	5 - Exit											                '+ bcolors.ENDC)
 		print (bcolors.HEADER+'''
 	------------------------------------------------'''+ bcolors.ENDC)
-
-		
