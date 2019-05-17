@@ -442,7 +442,7 @@ def funcNodesList():
 			elif (returnVal=='S'):
 				myStatus,myResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' info replication | grep  -e "master_host:" -e "master_port:" '))
 				if ( myStatus == 0 ):
-					slaveNodeList+= bcolors.OKBLUE+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' UP   '+bcolors.ENDC+bcolors.OKGREEN+myResponse.replace("\r\nmaster_port","")+'\n'+bcolors.ENDC					
+					slaveNodeList+= bcolors.OKBLUE+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' UP   '+bcolors.ENDC+bcolors.OKGREEN+' -> '+myResponse.replace("\r\nmaster_port","")+'\n'+bcolors.ENDC					
 				else:
 					slaveNodeList+= bcolors.OKBLUE+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' UP\n'+bcolors.ENDC  
 			else:
