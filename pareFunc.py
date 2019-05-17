@@ -440,7 +440,11 @@ def funcNodesList():
 			if (returnVal=='M'):
 				masterNodeList+=bcolors.OKGREEN+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' UP\n'+bcolors.ENDC  
 			elif (returnVal=='S'):
-				slaveNodeList+= bcolors.OKBLUE+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' UP\n'+bcolors.ENDC  
+				myStatus,myResponse = commands.getstatusoutput(redisConnectCmd(nodeIP,portNumber,' info replication | grep  -e "master_host:" -e "master_port:" '))
+				if ( myStatus == 0 ):
+					slaveNodeList+= bcolors.OKBLUE+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' UP   '+bcolors.ENDC+bcolors.OKGREEN+myResponse.replace("\r\nmaster_port","")+'\n'+bcolors.ENDC					
+				else:
+					slaveNodeList+= bcolors.OKBLUE+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' UP\n'+bcolors.ENDC  
 			else:
 				unknownNodeList+= bcolors.FAIL+'Node Number :'+str(nodeNumber)+' Server IP :'+nodeIP+' Port:'+portNumber+' DOWN\n'+bcolors.ENDC 
 	returnVAl=raw_input(bcolors.BOLD+'\n------- Master Nodes -------\n'+bcolors.ENDC +masterNodeList+bcolors.BOLD+'\n------- Slave Nodes -------\n'+bcolors.ENDC+slaveNodeList+bcolors.BOLD+'\n------- Down Nodes -------\n'+bcolors.ENDC+unknownNodeList+bcolors.BOLD+'\n--------------\nPress enter to continue...'+bcolors.ENDC )
