@@ -33,6 +33,6 @@ daemonize yes
 slowlog-log-slower-than 1000
 latency-monitor-threshold 100
 slowlog-max-len 10
-rename-command FLUSHALL "Ahsa5sMdbuva7_avsvs*1**"
-rename-command FLUSHDB "Ahsa5sMdbuva7_avsvs*1"
+rename-command FLUSHALL "Ahsa51111sMdbuva7_avsvs*1**"
+rename-command FLUSHDB "Ahsa111115sMdbuva117_avsvs*1"
 '''
